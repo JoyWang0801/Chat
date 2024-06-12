@@ -40,7 +40,7 @@ void chat(int sockfd)
 	}
 }
 
-int main(int argc, char *argv[])
+void mainLoop()
 {
 	int sockfd, connfd;
 	struct sockaddr_in servaddr, cli;
