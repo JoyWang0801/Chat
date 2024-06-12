@@ -9,9 +9,9 @@
 # target_link_libraries(cmake_example PRIVATE mymath)
 
 cmake_minimum_required(VERSION 3.5...3.27)
-project(example)
+project(Client)
 
 add_subdirectory(pybind11 REQUIRED)  # or `add_subdirectory(pybind11)`
 
-add_executable(example src/example.cpp)
-target_link_libraries(example PRIVATE pybind11::embed)
+add_executable(Client src/Client/client_connection.cpp src/Client/client_main.cpp)
+target_link_libraries(Client PRIVATE pybind11::embed)
