@@ -7,19 +7,21 @@
 using namespace std;
 namespace py = pybind11;
 
-int Hash() {
+string Hash(string password) {
     py::scoped_interpreter guard{};
-
     py::module_ hashlib = py::module_::import("hashlib");
-    py::object sha256 = hashlib.attr("sha256");
-    sha256.attr("update")(1234);
-    py::print(sha256.attr("hexdigest"));
-    return 0;
+    py::object sha256 = hashlib.attr("sha256")();
+    py::bytes bPassword = py::bytes(password); // Password
+    sha256.attr("update")(bPassword);
+    py::str hex = sha256.attr("hexdigest")();
+    //py::print(hex);
+    auto hashedPassword = hex.cast<std::string>();
+    //std::cout << message;
+    return hashedPassword;
 }
 
 int main()
 {
-    //Hash();
     // Username
     string username, password; 
     cout << "Type your username: "; // Type a number and press enter
@@ -40,6 +42,10 @@ int main()
 
     // set back to show input mode
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    string hashed_password = Hash(password);
+
+
 
     return 0;
 }
