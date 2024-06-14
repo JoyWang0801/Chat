@@ -21,27 +21,48 @@ string Hash(string password) {
     return hashedPassword;
 }
 
-void connect_to_mongodb()
+void connect_to_mongodb(string username, string password)
 {
+    // Import
     py::scoped_interpreter guard{};
     py::object MongoClient = py::module_::import("pymongo.mongo_client").attr("MongoClient");
     py::object ServerApi = py::module_::import("pymongo.server_api").attr("ServerApi");
+    py::object dotenv = py::module_::import("dotenv").attr("load_dotenv");
+    py::object os = py::module_::import("os");
 
-    py::str uri = "mongodb+srv://@cluster0.ltqknhb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    // Get uri from .env
+    dotenv();
+    py::str uri = os.attr("getenv")("ATLAS_URI");
+    py::print(uri);
 
+    // Connect
     py::object sa = ServerApi('1');
     py::object client = MongoClient(uri, "server_api"_a=sa);
-    try
+    py::object collection = client["User"]["User"];
+
+    // Create info
+    py::dict UserInfo("username"_a=username, "password"_a=password);
+    py::object result = collection.attr("insert_one")(UserInfo);
+    bool success = result.attr("acknowledged").cast<bool>();
+    // py::print(result);
+    // py::print(result.attr("acknowledged"));
+    if(success != true)
     {
+        cout << "Error occured, wasn't able to create user." << endl;
+    }
+
+
+    // try
+    // {
         //client.admin.command('ping')
-        py::object ad = client.attr("admin");
-        ad.attr("command")("ping");
-        cout << "success" << endl;
-    }
-    catch (...)
-    {
-        cout << "exception occurred" << endl;
-    }
+        // py::object ad = client.attr("admin");
+        // ad.attr("command")("ping");
+    //     cout << "success" << endl;
+    // }
+    // catch (...)
+    // {
+    //     cout << "exception occurred" << endl;
+    // }
 }
 
 int main()
@@ -70,6 +91,6 @@ int main()
     // string hashed_password = Hash(password);
 
 
-    connect_to_mongodb();
+    connect_to_mongodb("myoi", "mina");
     return 0;
 }
