@@ -21,7 +21,7 @@ string Hash(string password) {
     return hashedPassword;
 }
 
-void connect_to_mongodb(string username, string password)
+void connect_to_mongodb(string username, string password, int action)
 {
     // Import
     py::scoped_interpreter guard{};
@@ -33,7 +33,6 @@ void connect_to_mongodb(string username, string password)
     // Get uri from .env
     dotenv();
     py::str uri = os.attr("getenv")("ATLAS_URI");
-    py::print(uri);
 
     // Connect
     py::object sa = ServerApi('1');
@@ -41,56 +40,64 @@ void connect_to_mongodb(string username, string password)
     py::object collection = client["User"]["User"];
 
     // Create info
+    //py::dict UserInfo("username"_a="myoi", "password"_a="mina");
+    //py::dict UserInfo("username"_a="123", "password"_a="321");
+
     py::dict UserInfo("username"_a=username, "password"_a=password);
-    py::object result = collection.attr("insert_one")(UserInfo);
-    bool success = result.attr("acknowledged").cast<bool>();
-    // py::print(result);
-    // py::print(result.attr("acknowledged"));
-    if(success != true)
+
+    if(action == 1) // Create user
     {
-        cout << "Error occured, wasn't able to create user." << endl;
+        py::object insert_result = collection.attr("insert_one")(UserInfo);
+        bool success = insert_result.attr("acknowledged").cast<bool>();
+        if(success != true)
+        {
+            cout << "Error occured, wasn't able to create user." << endl;
+        }
     }
+    else if(action == 2) // Sign in
+    {
+        py::object find_result = collection.attr("find_one")(UserInfo);
+        if(find_result.is_none())
+        {
+            cout << "not an existing user" << endl;
+        }
+        else{
+            py::print(find_result);
 
-
-    // try
-    // {
-        //client.admin.command('ping')
-        // py::object ad = client.attr("admin");
-        // ad.attr("command")("ping");
-    //     cout << "success" << endl;
-    // }
-    // catch (...)
-    // {
-    //     cout << "exception occurred" << endl;
-    // }
+        }
+    }
 }
 
 int main()
 {
-    // // Username
-    // string username, password; 
-    // cout << "Type your username: "; // Type a number and press enter
-    // cin >> username; // Get user input from the keyboard
-    // cout << "Your username is: " << username << endl; // Display the input value
+    int choice;
+    cout << "Make your choice \n1.Create account \n2.Log in "; // Type a number and press enter
+    cin >> choice; // Get user input from the keyboard
 
-    // // set to hide input
-    // termios oldt;
-    // tcgetattr(STDIN_FILENO, &oldt);
-    // termios newt = oldt;
-    // newt.c_lflag &= ~ECHO;
-    // tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    // Username
+    string username, password; 
+    cout << "Type your username: "; // Type a number and press enter
+    cin >> username; // Get user input from the keyboard
+    cout << "Your username is: " << username << endl; // Display the input value
 
-    // // Password
-    // cout << "Type your password: "; // Type a number and press enter
-    // cin >> password;
-    // cout << "Your password is: " << password << endl; // Display the input value
+    // set to hide input
+    termios oldt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    termios newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-    // // set back to show input mode
-    // tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    // Password
+    cout << "Type your password: "; // Type a number and press enter
+    cin >> password;
+    cout << "Your password is: " << password << endl; // Display the input value
 
-    // string hashed_password = Hash(password);
+    // set back to show input mode
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 
+    // Hash and insert to db
+    string hashed_password = Hash(password);
+    connect_to_mongodb(username, hashed_password, choice);
 
-    connect_to_mongodb("myoi", "mina");
     return 0;
 }
