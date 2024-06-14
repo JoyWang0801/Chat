@@ -3,6 +3,8 @@
 #include <termios.h>
 #include <unistd.h>
 #include <pybind11/embed.h>
+#include "include/client_connection.h"
+#include "include/client_ui.h"
 
 using namespace std;
 namespace py = pybind11;
@@ -61,6 +63,7 @@ void connect_to_mongodb(string username, string password, int action)
             cout << "not an existing user" << endl;
         }
         else{
+            // Logged in
             py::print(find_result);
 
         }
@@ -69,34 +72,38 @@ void connect_to_mongodb(string username, string password, int action)
 
 int main()
 {
-    int choice;
-    cout << "Make your choice \n1.Create account \n2.Log in "; // Type a number and press enter
-    cin >> choice; // Get user input from the keyboard
+    // int choice;
+    // cout << "Make your choice \n1.Create account \n2.Log in "; // Type a number and press enter
+    // cin >> choice; // Get user input from the keyboard
 
-    // Username
-    string username, password; 
-    cout << "Type your username: "; // Type a number and press enter
-    cin >> username; // Get user input from the keyboard
-    cout << "Your username is: " << username << endl; // Display the input value
+    // // Username
+    // string username, password; 
+    // cout << "Type your username: "; // Type a number and press enter
+    // cin >> username; // Get user input from the keyboard
+    // cout << "Your username is: " << username << endl; // Display the input value
 
-    // set to hide input
-    termios oldt;
-    tcgetattr(STDIN_FILENO, &oldt);
-    termios newt = oldt;
-    newt.c_lflag &= ~ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    // // set to hide input
+    // termios oldt;
+    // tcgetattr(STDIN_FILENO, &oldt);
+    // termios newt = oldt;
+    // newt.c_lflag &= ~ECHO;
+    // tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-    // Password
-    cout << "Type your password: "; // Type a number and press enter
-    cin >> password;
-    cout << "Your password is: " << password << endl; // Display the input value
+    // // Password
+    // cout << "Type your password: "; // Type a number and press enter
+    // cin >> password;
+    // cout << "Your password is: " << password << endl; // Display the input value
 
-    // set back to show input mode
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    // // set back to show input mode
+    // tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 
-    // Hash and insert to db
-    string hashed_password = Hash(password);
-    connect_to_mongodb(username, hashed_password, choice);
+    // // Hash and insert to db
+    // string hashed_password = Hash(password);
+    // connect_to_mongodb(username, hashed_password, choice);
+
+    //mainLoop();
+
+    UI_Init();
 
     return 0;
 }

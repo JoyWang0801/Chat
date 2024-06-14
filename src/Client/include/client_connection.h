@@ -3,4 +3,4 @@
 #define SA struct sockaddr
 
 void chat(int sockfd);
-void MainLoop();
+void mainLoop();

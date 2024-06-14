@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
 #include <iostream>
+#include <time.h>
 #include "include/client_connection.h"
 // #define MAX 80
 // #define PORT 12345
@@ -18,7 +19,10 @@ void chat(int sockfd)
 	int n;
 	for (;;) {
 		bzero(buff, sizeof(buff));
-		printf("Enter the string : ");
+
+		//printf("Enter the string : ");
+		printf("Type and hit ENTER to send: ");
+
 		n = 0;
 		// while ((buff[n++] = getchar()) != '\n')
         if (fgets(buff, sizeof(buff), stdin) != NULL) {
@@ -28,15 +32,23 @@ void chat(int sockfd)
                 buff[len - 1] = '\0';
             }
         }
+
+		if ((strncmp(buff, "exit", 4)) == 0) {
+			printf("Client Exit...\n");
+			break;
+		}
+
+		// Get current time and print
+		time_t mytime = time(NULL);
+		char * time_str = ctime(&mytime);
+		time_str[strlen(time_str)-1] = '\0';
+		printf("%s - %s\n", time_str, buff);
+
 		write(sockfd, buff, sizeof(buff));
 		bzero(buff, sizeof(buff));
 
 		read(sockfd, buff, sizeof(buff));
 		printf("From Server : %s", buff);
-		if ((strncmp(buff, "exit", 4)) == 0) {
-			printf("Client Exit...\n");
-			break;
-		}
 	}
 }
 
@@ -57,7 +69,7 @@ void mainLoop()
 
 	// assign IP, PORT
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = inet_addr("10.44.124.23");
+	servaddr.sin_addr.s_addr = inet_addr("10.44.124.21");
 	servaddr.sin_port = htons(PORT);
 
 	// connect the client socket to server socket
